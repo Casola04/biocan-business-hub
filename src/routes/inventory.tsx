@@ -32,6 +32,7 @@ export const Route = createFileRoute("/inventory")({ component: InventoryPage })
 type FormState = {
   name: string;
   sku: string;
+  unit_cost: string;
   unit_price: string;
   stock_qty: string;
   reorder_level: string;
@@ -42,6 +43,7 @@ type FormState = {
 const emptyForm = (): FormState => ({
   name: "",
   sku: "",
+  unit_cost: "0",
   unit_price: "0",
   stock_qty: "0",
   reorder_level: "5",
@@ -98,6 +100,7 @@ function InventoryPage() {
     setForm({
       name: p.name,
       sku: p.sku ?? "",
+      unit_cost: String(p.unit_cost ?? 0),
       unit_price: String(p.unit_price ?? 0),
       stock_qty: String(p.stock_qty ?? 0),
       reorder_level: String(p.reorder_level ?? 5),
@@ -116,6 +119,7 @@ function InventoryPage() {
     const payload = {
       name: form.name.trim(),
       sku,
+      unit_cost: Number(form.unit_cost) || 0,
       unit_price: Number(form.unit_price) || 0,
       stock_qty: parseInt(form.stock_qty, 10) || 0,
       reorder_level: parseInt(form.reorder_level, 10) || 0,
@@ -209,6 +213,7 @@ function InventoryPage() {
               <TableRow>
                 <TableHead>Product Name</TableHead>
                 <TableHead>SKU</TableHead>
+                <TableHead className="text-right">Unit Cost</TableHead>
                 <TableHead className="text-right">Sale Price</TableHead>
                 <TableHead className="text-right">On Hand</TableHead>
                 <TableHead className="text-right">Reorder Level</TableHead>
@@ -241,6 +246,9 @@ function InventoryPage() {
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-xs">{p.sku ?? "—"}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {fmtMoney(Number(p.unit_cost ?? 0))}
+                    </TableCell>
                     <TableCell className="text-right font-medium">
                       {fmtMoney(Number(p.unit_price))}
                     </TableCell>
@@ -284,7 +292,7 @@ function InventoryPage() {
               })}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                     {search ? "No products match your search." : "No products yet"}
                   </TableCell>
                 </TableRow>
@@ -321,16 +329,29 @@ function InventoryPage() {
                 Leave blank to auto-assign next EPA-XXX
               </p>
             </div>
-            <div>
-              <Label htmlFor="price">Sale Price ($)</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.unit_price}
-                onChange={(e) => setForm({ ...form, unit_price: e.target.value })}
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="cost">Unit Cost ($)</Label>
+                <Input
+                  id="cost"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.unit_cost}
+                  onChange={(e) => setForm({ ...form, unit_cost: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="price">Sale Price ($)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.unit_price}
+                  onChange={(e) => setForm({ ...form, unit_price: e.target.value })}
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
