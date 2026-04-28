@@ -35,7 +35,7 @@ function ClientDetailPage() {
     queryKey: ["orders", "by-client", clientId],
     enabled: !!clientQuery.data,
     queryFn: async () => {
-      const cid = clientQuery.data?.client_id;
+      const cid = clientQuery.data?.id;
       if (!cid) return [];
       const { data, error } = await supabase
         .from("orders")
