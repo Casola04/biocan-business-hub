@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { supabase, type Order, type Client, type Product } from "@/lib/supabase";
-import { fmtMoney, monthKey, nextId, todayISO } from "@/lib/format";
+import { fmtMoney, formatMonthKey, monthKey, nextId, todayISO } from "@/lib/format";
 import { Plus, Trash2, Calendar as CalendarIcon, Check, ChevronsUpDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
@@ -281,7 +281,7 @@ function OrdersPage() {
               <SelectItem value={ALL}>All months</SelectItem>
               {months.map((m) => (
                 <SelectItem key={m} value={m}>
-                  {m.slice(0, 4)}-{m.slice(4)}
+                  {formatMonthKey(m)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -317,41 +317,55 @@ function OrdersPage() {
                 <TableHead className="text-right">Qty</TableHead>
                 <TableHead className="text-right">Unit Price</TableHead>
                 <TableHead className="text-right">Revenue</TableHead>
+                <TableHead className="text-right">Profit</TableHead>
                 <TableHead>Month</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((o) => (
-                <TableRow key={o.id}>
-                  <TableCell>{o.date}</TableCell>
-                  <TableCell className="font-mono text-xs">{o.order_id}</TableCell>
-                  <TableCell>{o.client_name ?? "—"}</TableCell>
-                  <TableCell>{o.product_name ?? "—"}</TableCell>
-                  <TableCell className="text-right">{o.quantity}</TableCell>
-                  <TableCell className="text-right">{fmtMoney(Number(o.unit_price))}</TableCell>
-                  <TableCell className="text-right text-success font-semibold">
-                    {fmtMoney(Number(o.total))}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{o.month_key}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {isAdmin && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setConfirmDelete(o)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filtered.map((o) => {
+                const prod = productsQ.data?.find((p) => p.id === o.product_id);
+                const cost = prod ? Number(prod.unit_cost) : 0;
+                const profit = (Number(o.unit_price) - cost) * Number(o.quantity);
+                return (
+                  <TableRow key={o.id}>
+                    <TableCell>{o.date}</TableCell>
+                    <TableCell className="font-mono text-xs">{o.order_id}</TableCell>
+                    <TableCell>{o.client_name ?? "—"}</TableCell>
+                    <TableCell>{o.product_name ?? "—"}</TableCell>
+                    <TableCell className="text-right">{o.quantity}</TableCell>
+                    <TableCell className="text-right">{fmtMoney(Number(o.unit_price))}</TableCell>
+                    <TableCell className="text-right text-success font-semibold">
+                      {fmtMoney(Number(o.total))}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "text-right font-semibold",
+                        profit >= 0 ? "text-success" : "text-destructive",
+                      )}
+                    >
+                      {fmtMoney(profit)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{formatMonthKey(o.month_key)}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {isAdmin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setConfirmDelete(o)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                     {hasFilters ? "No orders match the filters." : "No orders yet"}
                   </TableCell>
                 </TableRow>
