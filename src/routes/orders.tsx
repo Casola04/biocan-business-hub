@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { supabase, type Order, type Client, type Product } from "@/lib/supabase";
-import { fmtMoney, monthKey, nextId, todayISO } from "@/lib/format";
+import { fmtMoney, formatMonthKey, monthKey, nextId, todayISO } from "@/lib/format";
 import { Plus, Trash2, Calendar as CalendarIcon, Check, ChevronsUpDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
