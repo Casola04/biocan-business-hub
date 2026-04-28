@@ -29,8 +29,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BioCan Pharma Wholesale OS" },
-      { name: "description", content: "Operating system for BioCan Pharma peptide wholesale resellers." },
+      { title: "True North Labs Wholesale OS" },
+      { name: "description", content: "Operating system for True North Labs peptide wholesale resellers." },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
