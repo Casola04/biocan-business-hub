@@ -19,10 +19,12 @@ import { supabase, type Order, type Client, type Product } from "@/lib/supabase"
 import { fmtMoney, monthKey, nextId, todayISO } from "@/lib/format";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/orders")({ component: OrdersPage });
 
 function OrdersPage() {
+  const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -201,7 +203,7 @@ function OrdersPage() {
                   <TableCell className="text-right">{fmtMoney(Number(o.unit_price))}</TableCell>
                   <TableCell className="text-right text-success font-semibold">{fmtMoney(Number(o.total))}</TableCell>
                   <TableCell><Badge variant={o.status === "Paid" || o.status === "Shipped" ? "default" : "secondary"}>{o.status}</Badge></TableCell>
-                  <TableCell><Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}><Trash2 className="h-4 w-4" /></Button></TableCell>
+                  <TableCell>{isAdmin && <Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}><Trash2 className="h-4 w-4" /></Button>}</TableCell>
                 </TableRow>
               ))}
               {(ordersQ.data ?? []).length === 0 && (

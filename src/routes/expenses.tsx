@@ -15,10 +15,12 @@ import { supabase, type Expense } from "@/lib/supabase";
 import { fmtMoney, monthKey, nextId, todayISO } from "@/lib/format";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/expenses")({ component: ExpensesPage });
 
 function ExpensesPage() {
+  const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -107,7 +109,7 @@ function ExpensesPage() {
                   <TableCell>{e.vendor}</TableCell>
                   <TableCell className="text-right font-semibold">{fmtMoney(Number(e.amount))}</TableCell>
                   <TableCell className="max-w-xs truncate">{e.notes}</TableCell>
-                  <TableCell><Button variant="ghost" size="icon" onClick={() => handleDelete(e.id)}><Trash2 className="h-4 w-4" /></Button></TableCell>
+                  <TableCell>{isAdmin && <Button variant="ghost" size="icon" onClick={() => handleDelete(e.id)}><Trash2 className="h-4 w-4" /></Button>}</TableCell>
                 </TableRow>
               ))}
               {(data ?? []).length === 0 && (

@@ -15,10 +15,12 @@ import { supabase, type Client } from "@/lib/supabase";
 import { nextId } from "@/lib/format";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/clients")({ component: ClientsPage });
 
 function ClientsPage() {
+  const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", notes: "" });
@@ -95,9 +97,11 @@ function ClientsPage() {
                   <TableCell>{c.phone}</TableCell>
                   <TableCell className="max-w-xs truncate">{c.notes}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(c.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {isAdmin && (
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(c.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
