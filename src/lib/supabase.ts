@@ -16,12 +16,15 @@ export const supabase = createClient(url, anonKey, {
   },
 });
 
+export type PricingType = "Standard" | "At Cost";
+
 export type Client = {
   id: string;
   client_id: string;
   name: string;
   email: string | null;
   phone: string | null;
+  pricing_type: PricingType | null;
   notes: string | null;
   created_at: string;
 };
