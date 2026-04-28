@@ -281,7 +281,7 @@ function OrdersPage() {
               <SelectItem value={ALL}>All months</SelectItem>
               {months.map((m) => (
                 <SelectItem key={m} value={m}>
-                  {m.slice(0, 4)}-{m.slice(4)}
+                  {formatMonthKey(m)}
                 </SelectItem>
               ))}
             </SelectContent>
