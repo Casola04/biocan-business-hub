@@ -37,9 +37,7 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <img src={logo} alt="True North Labs" className="mx-auto mb-3 h-12 w-auto object-contain" />
-          <CardTitle>True North Labs</CardTitle>
-          <CardDescription>Employee sign in</CardDescription>
+          <img src={logo} alt="True North Labs" className="mx-auto h-16 w-auto object-contain" />
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-3">
@@ -55,9 +53,6 @@ function LoginPage() {
             <Button type="submit" className="w-full" disabled={busy}>
               {busy ? "Signing in…" : "Sign in"}
             </Button>
-            <p className="text-xs text-muted-foreground text-center pt-2">
-              Accounts are created by your administrator.
-            </p>
           </form>
         </CardContent>
       </Card>
