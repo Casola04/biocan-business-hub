@@ -1,0 +1,68 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Pill } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/login")({
+  component: LoginPage,
+});
+
+function LoginPage() {
+  const { signIn, session } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  if (session) {
+    navigate({ to: "/" });
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setErr(null);
+    const { error } = await signIn(email, password);
+    setBusy(false);
+    if (error) return setErr(error);
+    navigate({ to: "/" });
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Pill className="h-6 w-6" />
+          </div>
+          <CardTitle>BioCan Pharma OS</CardTitle>
+          <CardDescription>Employee sign in</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={onSubmit} className="space-y-3">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+            </div>
+            {err && <p className="text-sm text-destructive">{err}</p>}
+            <Button type="submit" className="w-full" disabled={busy}>
+              {busy ? "Signing in…" : "Sign in"}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center pt-2">
+              Accounts are created by your administrator.
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
