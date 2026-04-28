@@ -418,10 +418,10 @@ function OrdersPage() {
       </Card>
 
       {/* New Order slide-over */}
-      <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
         <SheetContent className="sm:max-w-md overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>New Order</SheetTitle>
+            <SheetTitle>{editing ? `Edit Order ${editing.order_id}` : "New Order"}</SheetTitle>
           </SheetHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-3">
@@ -537,7 +537,7 @@ function OrdersPage() {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate}>Create Order</Button>
+            <Button onClick={handleSave}>{editing ? "Save Changes" : "Create Order"}</Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
