@@ -14,7 +14,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const { signIn, session } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -27,7 +27,7 @@ function LoginPage() {
     e.preventDefault();
     setBusy(true);
     setErr(null);
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(username, password);
     setBusy(false);
     if (error) return setErr(error);
     navigate({ to: "/" });
@@ -42,8 +42,17 @@ function LoginPage() {
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-3">
             <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
+              />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
