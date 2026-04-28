@@ -164,9 +164,9 @@ function OrdersPage() {
     const { error } = await supabase.from("orders").insert({
       order_id,
       date: form.date,
-      client_id: client?.client_id ?? null,
+      client_id: client?.id ?? null,
       client_name: client?.name ?? null,
-      product_id: product.product_id ?? null,
+      product_id: product.id ?? null,
       product_name: product.name ?? null,
       quantity: qty,
       unit_price: price,
