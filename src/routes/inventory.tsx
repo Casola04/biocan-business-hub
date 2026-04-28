@@ -39,15 +39,13 @@ type FormState = {
   notes: string;
 };
 
-const DEFAULT_SUPPLIER = "BioCan Pharma";
-
 const emptyForm = (): FormState => ({
   name: "",
   sku: "",
   unit_price: "0",
   stock_qty: "0",
   reorder_level: "5",
-  supplier: DEFAULT_SUPPLIER,
+  supplier: "",
   notes: "",
 });
 
@@ -103,7 +101,7 @@ function InventoryPage() {
       unit_price: String(p.unit_price ?? 0),
       stock_qty: String(p.stock_qty ?? 0),
       reorder_level: String(p.reorder_level ?? 5),
-      supplier: p.supplier ?? DEFAULT_SUPPLIER,
+      supplier: p.supplier ?? "",
       notes: p.notes ?? "",
     });
     setOpen(true);
