@@ -175,7 +175,7 @@ function Dashboard() {
                         borderRadius: "0.5rem",
                         color: "var(--popover-foreground)",
                       }}
-                      formatter={(value) => fmtMoney(Number(value))}
+                      formatter={((value: unknown) => fmtMoney(Number(value))) as any}
                     />
                     <Legend />
                     <Bar dataKey="Revenue" fill="var(--success)" radius={[4, 4, 0, 0]} />
@@ -214,7 +214,7 @@ function Dashboard() {
                         borderRadius: "0.5rem",
                         color: "var(--popover-foreground)",
                       }}
-                      formatter={(value) => fmtMoney(Number(value))}
+                      formatter={((value: unknown) => fmtMoney(Number(value))) as any}
                     />
                     <Bar dataKey="Revenue" fill="var(--success)" radius={[0, 4, 4, 0]} />
                   </BarChart>
