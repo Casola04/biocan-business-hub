@@ -53,7 +53,6 @@ function LoginPage() {
             <Button type="submit" className="w-full" disabled={busy}>
               {busy ? "Signing in…" : "Sign in"}
             </Button>
-            </p>
           </form>
         </CardContent>
       </Card>
