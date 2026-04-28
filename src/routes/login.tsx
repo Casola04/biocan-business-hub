@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Pill } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import logo from "@/assets/true-north-labs-logo.png";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -37,10 +37,8 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Pill className="h-6 w-6" />
-          </div>
-          <CardTitle>BioCan Pharma OS</CardTitle>
+          <img src={logo} alt="True North Labs" className="mx-auto mb-3 h-12 w-auto object-contain" />
+          <CardTitle>True North Labs</CardTitle>
           <CardDescription>Employee sign in</CardDescription>
         </CardHeader>
         <CardContent>
