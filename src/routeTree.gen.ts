@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as ClientsRouteImport } from './routes/clients'
@@ -24,6 +25,11 @@ const ReportsRoute = ReportsRouteImport.update({
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InventoryRoute = InventoryRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/clients': typeof ClientsRoute
   '/expenses': typeof ExpensesRoute
   '/inventory': typeof InventoryRoute
+  '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/clients': typeof ClientsRoute
   '/expenses': typeof ExpensesRoute
   '/inventory': typeof InventoryRoute
+  '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/clients': typeof ClientsRoute
   '/expenses': typeof ExpensesRoute
   '/inventory': typeof InventoryRoute
+  '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
 }
@@ -79,16 +88,25 @@ export interface FileRouteTypes {
     | '/clients'
     | '/expenses'
     | '/inventory'
+    | '/login'
     | '/orders'
     | '/reports'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/clients' | '/expenses' | '/inventory' | '/orders' | '/reports'
+  to:
+    | '/'
+    | '/clients'
+    | '/expenses'
+    | '/inventory'
+    | '/login'
+    | '/orders'
+    | '/reports'
   id:
     | '__root__'
     | '/'
     | '/clients'
     | '/expenses'
     | '/inventory'
+    | '/login'
     | '/orders'
     | '/reports'
   fileRoutesById: FileRoutesById
@@ -98,6 +116,7 @@ export interface RootRouteChildren {
   ClientsRoute: typeof ClientsRoute
   ExpensesRoute: typeof ExpensesRoute
   InventoryRoute: typeof InventoryRoute
+  LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRoute
   ReportsRoute: typeof ReportsRoute
 }
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inventory': {
@@ -154,9 +180,19 @@ const rootRouteChildren: RootRouteChildren = {
   ClientsRoute: ClientsRoute,
   ExpensesRoute: ExpensesRoute,
   InventoryRoute: InventoryRoute,
+  LoginRoute: LoginRoute,
   OrdersRoute: OrdersRoute,
   ReportsRoute: ReportsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

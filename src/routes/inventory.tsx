@@ -15,10 +15,12 @@ import { supabase, type Product } from "@/lib/supabase";
 import { fmtMoney, nextId } from "@/lib/format";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/inventory")({ component: InventoryPage });
 
 function InventoryPage() {
+  const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -114,7 +116,7 @@ function InventoryPage() {
                     <TableCell className="text-right text-success font-medium">{fmtMoney(Number(p.unit_price))}</TableCell>
                     <TableCell className={`text-right ${low ? "text-destructive font-semibold" : ""}`}>{p.stock_qty}</TableCell>
                     <TableCell className="text-right">{p.reorder_level}</TableCell>
-                    <TableCell><Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}><Trash2 className="h-4 w-4" /></Button></TableCell>
+                    <TableCell>{isAdmin && <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}><Trash2 className="h-4 w-4" /></Button>}</TableCell>
                   </TableRow>
                 );
               })}
