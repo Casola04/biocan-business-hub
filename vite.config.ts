@@ -6,6 +6,9 @@ import tsConfigPaths from "vite-tsconfig-paths";
 import path from "node:path";
 
 export default defineConfig({
+  ssr: {
+    noExternal: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

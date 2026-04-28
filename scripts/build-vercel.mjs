@@ -21,6 +21,13 @@ if (existsSync(clientDir)) cpSync(clientDir, staticDir, { recursive: true });
 const serverDir = join(root, "dist", "server");
 cpSync(serverDir, fnDir, { recursive: true });
 
+// Keep Vite's emitted .js server chunks in ESM mode when Vercel runs the
+// isolated function directory.
+writeFileSync(
+  join(fnDir, "package.json"),
+  JSON.stringify({ type: "module" }, null, 2),
+);
+
 // 3. Vercel Node launcher entry. Vercel's Node runtime invokes this as a
 //    classic (req, res) handler. TanStack Start exports a Web-standard
 //    { fetch(Request) -> Response } handler, so we adapt between the two.
