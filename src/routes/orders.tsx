@@ -31,7 +31,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { supabase, type Order, type Client, type Product } from "@/lib/supabase";
 import { fmtMoney, formatMonthKey, monthKey, nextId, todayISO } from "@/lib/format";
-import { Plus, Trash2, Calendar as CalendarIcon, Check, ChevronsUpDown, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Calendar as CalendarIcon, Check, ChevronsUpDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -65,6 +65,7 @@ function OrdersPage() {
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Order | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm(""));
   const [confirmDelete, setConfirmDelete] = useState<Order | null>(null);
 
@@ -141,11 +142,26 @@ function OrdersPage() {
   }
 
   function openCreate() {
+    setEditing(null);
     setForm(emptyForm(suggestOrderId()));
     setOpen(true);
   }
 
-  async function handleCreate() {
+  function openEdit(o: Order) {
+    setEditing(o);
+    setForm({
+      date: o.date,
+      order_id: o.order_id,
+      client_id: o.client_id ?? "",
+      product_id: o.product_id ?? "",
+      quantity: String(o.quantity),
+      unit_price: String(o.unit_price),
+      notes: o.notes ?? "",
+    });
+    setOpen(true);
+  }
+
+  async function handleSave() {
     if (!form.client_id) return toast.error("Client is required");
     if (!form.product_id) return toast.error("Product is required");
     const qty = parseInt(form.quantity, 10);
@@ -161,7 +177,7 @@ function OrdersPage() {
     const total = qty * price;
     const mk = monthKey(form.date);
 
-    const { error } = await supabase.from("orders").insert({
+    const payload = {
       order_id,
       date: form.date,
       client_id: client?.id ?? null,
@@ -171,28 +187,49 @@ function OrdersPage() {
       quantity: qty,
       unit_price: price,
       total,
-      status: "Pending",
       notes: form.notes || null,
       month_key: mk,
-    });
-    if (error) return toast.error(error.message);
+    };
 
-    // Decrement stock
-    const newStock = Math.max(0, Number(product.stock_qty) - qty);
-    const { error: updErr } = await supabase
-      .from("products")
-      .update({ stock_qty: newStock })
-      .eq("id", product.id);
-    if (updErr) toast.error(`Stock update failed: ${updErr.message}`);
+    if (editing) {
+      const { error } = await supabase.from("orders").update(payload).eq("id", editing.id);
+      if (error) return toast.error(error.message);
 
-    toast.success(`Order ${order_id} created`);
-    if (newStock <= Number(product.reorder_level)) {
-      toast.warning(
-        `${product.name} is now at ${newStock} (reorder level ${product.reorder_level})`,
-      );
+      // Adjust stock by the delta in quantity (only if product unchanged)
+      if (editing.product_id === product.id) {
+        const delta = qty - Number(editing.quantity);
+        if (delta !== 0) {
+          const newStock = Math.max(0, Number(product.stock_qty) - delta);
+          const { error: updErr } = await supabase
+            .from("products")
+            .update({ stock_qty: newStock })
+            .eq("id", product.id);
+          if (updErr) toast.error(`Stock update failed: ${updErr.message}`);
+        }
+      }
+      toast.success(`Order ${order_id} updated`);
+    } else {
+      const { error } = await supabase.from("orders").insert({ ...payload, status: "Pending" });
+      if (error) return toast.error(error.message);
+
+      // Decrement stock
+      const newStock = Math.max(0, Number(product.stock_qty) - qty);
+      const { error: updErr } = await supabase
+        .from("products")
+        .update({ stock_qty: newStock })
+        .eq("id", product.id);
+      if (updErr) toast.error(`Stock update failed: ${updErr.message}`);
+
+      toast.success(`Order ${order_id} created`);
+      if (newStock <= Number(product.reorder_level)) {
+        toast.warning(
+          `${product.name} is now at ${newStock} (reorder level ${product.reorder_level})`,
+        );
+      }
     }
 
     setOpen(false);
+    setEditing(null);
     setForm(emptyForm(""));
     qc.invalidateQueries({ queryKey: ["orders"] });
     qc.invalidateQueries({ queryKey: ["products"] });
