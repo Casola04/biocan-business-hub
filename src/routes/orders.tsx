@@ -262,7 +262,7 @@ function OrdersPage() {
             <SelectContent>
               <SelectItem value={ALL}>All clients</SelectItem>
               {(clientsQ.data ?? []).map((c) => (
-                <SelectItem key={c.id} value={c.client_id}>{c.name}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -271,7 +271,7 @@ function OrdersPage() {
             <SelectContent>
               <SelectItem value={ALL}>All products</SelectItem>
               {(productsQ.data ?? []).map((p) => (
-                <SelectItem key={p.id} value={p.product_id}>{p.name}</SelectItem>
+                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
