@@ -171,7 +171,7 @@ function ReportsPage() {
                       fontSize={12}
                     />
                     <Tooltip
-                      formatter={(v: number) => fmtMoney(Number(v))}
+                      formatter={(v) => fmtMoney(Number(v))}
                       contentStyle={{
                         background: "hsl(var(--card))",
                         border: "1px solid hsl(var(--border))",
@@ -247,7 +247,7 @@ function ReportsPage() {
                       fontSize={12}
                     />
                     <Tooltip
-                      formatter={(v: number) => fmtMoney(Number(v))}
+                      formatter={(v) => fmtMoney(Number(v))}
                       contentStyle={{
                         background: "hsl(var(--card))",
                         border: "1px solid hsl(var(--border))",
