@@ -387,15 +387,20 @@ function OrdersPage() {
                       <Badge variant="outline">{formatMonthKey(o.month_key)}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {isAdmin && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setConfirmDelete(o)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                      <div className="flex justify-end items-center gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(o)}>
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      )}
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setConfirmDelete(o)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
