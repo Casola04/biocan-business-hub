@@ -38,6 +38,7 @@ export type Product = {
   unit_price: number;
   stock_qty: number;
   reorder_level: number;
+  supplier: string | null;
   notes: string | null;
   created_at: string;
 };
