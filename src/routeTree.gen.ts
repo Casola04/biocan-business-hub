@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SeedRouteImport } from './routes/seed'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
@@ -20,11 +19,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ClientsIndexRouteImport } from './routes/clients.index'
 import { Route as ClientsClientIdRouteImport } from './routes/clients.$clientId'
 
-const SeedRoute = SeedRouteImport.update({
-  id: '/seed',
-  path: '/seed',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -79,7 +73,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
-  '/seed': typeof SeedRoute
   '/clients/$clientId': typeof ClientsClientIdRoute
   '/clients/': typeof ClientsIndexRoute
 }
@@ -90,7 +83,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
-  '/seed': typeof SeedRoute
   '/clients/$clientId': typeof ClientsClientIdRoute
   '/clients': typeof ClientsIndexRoute
 }
@@ -103,7 +95,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
-  '/seed': typeof SeedRoute
   '/clients/$clientId': typeof ClientsClientIdRoute
   '/clients/': typeof ClientsIndexRoute
 }
@@ -117,7 +108,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/orders'
     | '/reports'
-    | '/seed'
     | '/clients/$clientId'
     | '/clients/'
   fileRoutesByTo: FileRoutesByTo
@@ -128,7 +118,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/orders'
     | '/reports'
-    | '/seed'
     | '/clients/$clientId'
     | '/clients'
   id:
@@ -140,7 +129,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/orders'
     | '/reports'
-    | '/seed'
     | '/clients/$clientId'
     | '/clients/'
   fileRoutesById: FileRoutesById
@@ -153,18 +141,10 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRoute
   ReportsRoute: typeof ReportsRoute
-  SeedRoute: typeof SeedRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/seed': {
-      id: '/seed'
-      path: '/seed'
-      fullPath: '/seed'
-      preLoaderRoute: typeof SeedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reports': {
       id: '/reports'
       path: '/reports'
@@ -252,8 +232,16 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OrdersRoute: OrdersRoute,
   ReportsRoute: ReportsRoute,
-  SeedRoute: SeedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
