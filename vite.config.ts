@@ -15,9 +15,7 @@ export default defineConfig({
   plugins: [
     tsConfigPaths(),
     tailwindcss(),
-    tanstackStart({
-      target: "vercel",
-    }),
+    tanstackStart(),
     viteReact(),
   ],
 });
