@@ -164,9 +164,9 @@ function OrdersPage() {
     const { error } = await supabase.from("orders").insert({
       order_id,
       date: form.date,
-      client_id: client?.client_id ?? null,
+      client_id: client?.id ?? null,
       client_name: client?.name ?? null,
-      product_id: product.product_id ?? null,
+      product_id: product.id ?? null,
       product_name: product.name ?? null,
       quantity: qty,
       unit_price: price,
@@ -262,7 +262,7 @@ function OrdersPage() {
             <SelectContent>
               <SelectItem value={ALL}>All clients</SelectItem>
               {(clientsQ.data ?? []).map((c) => (
-                <SelectItem key={c.id} value={c.client_id}>{c.name}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -271,7 +271,7 @@ function OrdersPage() {
             <SelectContent>
               <SelectItem value={ALL}>All products</SelectItem>
               {(productsQ.data ?? []).map((p) => (
-                <SelectItem key={p.id} value={p.product_id}>{p.name}</SelectItem>
+                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
