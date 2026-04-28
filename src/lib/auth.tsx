@@ -4,11 +4,6 @@ import { supabase } from "@/lib/supabase";
 
 export type AppRole = "admin" | "employee";
 
-export const USERNAME_EMAIL_DOMAIN = "truenorth.local";
-export function usernameToEmail(username: string): string {
-  return `${username.trim().toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
-}
-
 type AuthState = {
   session: Session | null;
   user: User | null;
@@ -58,7 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     isAdmin: role === "admin",
     async signIn(username, password) {
-      const email = usernameToEmail(username);
+      const uname = username.trim().toLowerCase();
+      const { data: emailData, error: lookupErr } = await supabase.rpc(
+        "get_email_for_username",
+        { p_username: uname },
+      );
+      if (lookupErr) return { error: lookupErr.message };
+      const email = emailData as string | null;
+      if (!email) return { error: "Unknown username" };
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       return { error: error?.message ?? null };
     },
