@@ -85,8 +85,17 @@ function Dashboard() {
     .sort((a, b) => a.month.localeCompare(b.month))
     .map((m) => ({
       ...m,
-      monthLabel: m.month
-        ? new Date(`${m.month.slice(0, 4)}-${m.month.slice(4, 6)}-01`).toLocaleString("en-US", { month: "short", year: "2-digit" })
+      // Build the label using LOCAL Date construction (year, monthIdx, day).
+      // Previously this used `new Date("YYYY-MM-01")`, which browsers parse as
+      // UTC midnight and then `toLocaleString` shifts it backwards into the
+      // prior month for any timezone west of UTC (Toronto, NYC, etc.) — that
+      // bug was making every month label appear one month early.
+      monthLabel: m.month && m.month.length === 6
+        ? new Date(
+            parseInt(m.month.slice(0, 4), 10),
+            parseInt(m.month.slice(4, 6), 10) - 1,
+            1,
+          ).toLocaleString("en-US", { month: "short", year: "2-digit" })
         : "—",
     }));
 
