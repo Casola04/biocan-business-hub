@@ -90,12 +90,13 @@ export default async function handler(req, res) {
 `,
 );
 
-// 4. Function config (Node 20)
+// 4. Function config (Node 22 — required for native WebSocket support which
+//    @supabase/supabase-js needs at SSR init. Node 20 throws at module load.)
 writeFileSync(
   join(fnDir, ".vc-config.json"),
   JSON.stringify(
     {
-      runtime: "nodejs20.x",
+      runtime: "nodejs22.x",
       handler: "index.mjs",
       launcherType: "Nodejs",
       shouldAddHelpers: false,
