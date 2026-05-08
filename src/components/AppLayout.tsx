@@ -9,10 +9,13 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User as UserIcon, ShieldCheck } from "lucide-react";
+import { LogOut, User as UserIcon, ShieldCheck, Truck } from "lucide-react";
+
+// Routes that distributors are not allowed to visit. They get bounced to /.
+const DISTRIBUTOR_BLOCKED = ["/inventory", "/reports", "/distributors"];
 
 export function AppLayout({ title, children }: { title: string; children: ReactNode }) {
-  const { session, loading, user, role, isAdmin, signOut } = useAuth();
+  const { session, loading, user, role, isAdmin, isDistributor, splitPct, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,6 +24,16 @@ export function AppLayout({ title, children }: { title: string; children: ReactN
       navigate({ to: "/login" });
     }
   }, [loading, session, location.pathname, navigate]);
+
+  // Distributor route guard — kick them off admin-only pages.
+  useEffect(() => {
+    if (!loading && isDistributor) {
+      const blocked = DISTRIBUTOR_BLOCKED.some((p) =>
+        location.pathname === p || location.pathname.startsWith(p + "/"),
+      );
+      if (blocked) navigate({ to: "/" });
+    }
+  }, [loading, isDistributor, location.pathname, navigate]);
 
   if (loading || !session) {
     return (
@@ -44,13 +57,17 @@ export function AppLayout({ title, children }: { title: string; children: ReactN
                   <UserIcon className="h-4 w-4" />
                   <span className="hidden sm:inline text-sm">{user?.email}</span>
                   {isAdmin && <ShieldCheck className="h-3.5 w-3.5 text-success" />}
+                  {isDistributor && <Truck className="h-3.5 w-3.5 text-primary" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium truncate">{user?.email}</span>
-                    <span className="text-xs text-muted-foreground capitalize">{role ?? "loading…"}</span>
+                    <span className="text-xs text-muted-foreground capitalize">
+                      {role ?? "loading…"}
+                      {isDistributor && ` · ${splitPct}% split`}
+                    </span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

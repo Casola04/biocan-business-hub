@@ -34,6 +34,7 @@ import { fmtMoney, formatMonthKey, monthKey, nextId, todayISO } from "@/lib/form
 import { Plus, Pencil, Trash2, Calendar as CalendarIcon, Check, ChevronsUpDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { applyDistributorScope, distributorIdForInsert, useDataScope } from "@/lib/scope";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/orders")({ component: OrdersPage });
@@ -61,7 +62,9 @@ const emptyForm = (suggestedOrderId: string): FormState => ({
 });
 
 function OrdersPage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isDistributor, splitPct } = useAuth();
+  const scope = useDataScope();
+  const showSplit = scope.kind !== "admin";
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
@@ -77,24 +80,25 @@ function OrdersPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>();
 
   const ordersQ = useQuery({
-    queryKey: ["orders"],
+    queryKey: ["orders", scope],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("date", { ascending: false });
+      let q = supabase.from("orders").select("*").order("date", { ascending: false });
+      q = applyDistributorScope(q, scope);
+      const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as Order[];
     },
   });
 
   const clientsQ = useQuery({
-    queryKey: ["clients", "select"],
+    queryKey: ["clients", "select", scope],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("clients")
         .select("id, client_id, name, pricing_type")
         .order("name");
+      q = applyDistributorScope(q, scope);
+      const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as Pick<Client, "id" | "client_id" | "name" | "pricing_type">[];
     },
@@ -189,6 +193,10 @@ function OrdersPage() {
       total,
       notes: form.notes || null,
       month_key: mk,
+      // When the page is rendered for a distributor (their own /orders OR
+      // admin viewing /distributors/:id/...), tie the new order to that
+      // distributor. For admin's own /orders, leave null.
+      distributor_id: editing ? editing.distributor_id : distributorIdForInsert(scope),
     };
 
     if (editing) {
@@ -355,6 +363,7 @@ function OrdersPage() {
                 <TableHead className="text-right">Unit Price</TableHead>
                 <TableHead className="text-right">Revenue</TableHead>
                 <TableHead className="text-right">Profit</TableHead>
+                {showSplit && <TableHead className="text-right">Your Cut ({splitPct}%)</TableHead>}
                 <TableHead>Month</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -364,6 +373,7 @@ function OrdersPage() {
                 const prod = productsQ.data?.find((p) => p.id === o.product_id);
                 const cost = prod ? Number(prod.unit_cost) : 0;
                 const profit = (Number(o.unit_price) - cost) * Number(o.quantity);
+                const myCut = profit * (splitPct / 100);
                 return (
                   <TableRow key={o.id}>
                     <TableCell>{o.date}</TableCell>
@@ -383,6 +393,11 @@ function OrdersPage() {
                     >
                       {fmtMoney(profit)}
                     </TableCell>
+                    {showSplit && (
+                      <TableCell className="text-right text-success font-semibold">
+                        {fmtMoney(myCut)}
+                      </TableCell>
+                    )}
                     <TableCell>
                       <Badge variant="outline">{formatMonthKey(o.month_key)}</Badge>
                     </TableCell>
@@ -391,7 +406,7 @@ function OrdersPage() {
                         <Button variant="ghost" size="icon" onClick={() => openEdit(o)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        {isAdmin && (
+                        {(isAdmin || isDistributor) && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -407,7 +422,7 @@ function OrdersPage() {
               })}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={showSplit ? 11 : 10} className="text-center text-muted-foreground py-8">
                     {hasFilters ? "No orders match the filters." : "No orders yet"}
                   </TableCell>
                 </TableRow>

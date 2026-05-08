@@ -14,9 +14,12 @@ import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as ExpensesRouteImport } from './routes/expenses'
+import { Route as DistributorsRouteImport } from './routes/distributors'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DistributorsIndexRouteImport } from './routes/distributors.index'
 import { Route as ClientsIndexRouteImport } from './routes/clients.index'
+import { Route as DistributorsDistributorIdRouteImport } from './routes/distributors.$distributorId'
 import { Route as ClientsClientIdRouteImport } from './routes/clients.$clientId'
 
 const ReportsRoute = ReportsRouteImport.update({
@@ -44,6 +47,11 @@ const ExpensesRoute = ExpensesRouteImport.update({
   path: '/expenses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DistributorsRoute = DistributorsRouteImport.update({
+  id: '/distributors',
+  path: '/distributors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientsRoute = ClientsRouteImport.update({
   id: '/clients',
   path: '/clients',
@@ -54,11 +62,22 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DistributorsIndexRoute = DistributorsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DistributorsRoute,
+} as any)
 const ClientsIndexRoute = ClientsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ClientsRoute,
 } as any)
+const DistributorsDistributorIdRoute =
+  DistributorsDistributorIdRouteImport.update({
+    id: '/$distributorId',
+    path: '/$distributorId',
+    getParentRoute: () => DistributorsRoute,
+  } as any)
 const ClientsClientIdRoute = ClientsClientIdRouteImport.update({
   id: '/$clientId',
   path: '/$clientId',
@@ -68,13 +87,16 @@ const ClientsClientIdRoute = ClientsClientIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/clients': typeof ClientsRouteWithChildren
+  '/distributors': typeof DistributorsRouteWithChildren
   '/expenses': typeof ExpensesRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
   '/clients/$clientId': typeof ClientsClientIdRoute
+  '/distributors/$distributorId': typeof DistributorsDistributorIdRoute
   '/clients/': typeof ClientsIndexRoute
+  '/distributors/': typeof DistributorsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,32 +106,40 @@ export interface FileRoutesByTo {
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
   '/clients/$clientId': typeof ClientsClientIdRoute
+  '/distributors/$distributorId': typeof DistributorsDistributorIdRoute
   '/clients': typeof ClientsIndexRoute
+  '/distributors': typeof DistributorsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/clients': typeof ClientsRouteWithChildren
+  '/distributors': typeof DistributorsRouteWithChildren
   '/expenses': typeof ExpensesRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/reports': typeof ReportsRoute
   '/clients/$clientId': typeof ClientsClientIdRoute
+  '/distributors/$distributorId': typeof DistributorsDistributorIdRoute
   '/clients/': typeof ClientsIndexRoute
+  '/distributors/': typeof DistributorsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/clients'
+    | '/distributors'
     | '/expenses'
     | '/inventory'
     | '/login'
     | '/orders'
     | '/reports'
     | '/clients/$clientId'
+    | '/distributors/$distributorId'
     | '/clients/'
+    | '/distributors/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,23 +149,29 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reports'
     | '/clients/$clientId'
+    | '/distributors/$distributorId'
     | '/clients'
+    | '/distributors'
   id:
     | '__root__'
     | '/'
     | '/clients'
+    | '/distributors'
     | '/expenses'
     | '/inventory'
     | '/login'
     | '/orders'
     | '/reports'
     | '/clients/$clientId'
+    | '/distributors/$distributorId'
     | '/clients/'
+    | '/distributors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientsRoute: typeof ClientsRouteWithChildren
+  DistributorsRoute: typeof DistributorsRouteWithChildren
   ExpensesRoute: typeof ExpensesRoute
   InventoryRoute: typeof InventoryRoute
   LoginRoute: typeof LoginRoute
@@ -180,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExpensesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/distributors': {
+      id: '/distributors'
+      path: '/distributors'
+      fullPath: '/distributors'
+      preLoaderRoute: typeof DistributorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clients': {
       id: '/clients'
       path: '/clients'
@@ -194,12 +237,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/distributors/': {
+      id: '/distributors/'
+      path: '/'
+      fullPath: '/distributors/'
+      preLoaderRoute: typeof DistributorsIndexRouteImport
+      parentRoute: typeof DistributorsRoute
+    }
     '/clients/': {
       id: '/clients/'
       path: '/'
       fullPath: '/clients/'
       preLoaderRoute: typeof ClientsIndexRouteImport
       parentRoute: typeof ClientsRoute
+    }
+    '/distributors/$distributorId': {
+      id: '/distributors/$distributorId'
+      path: '/$distributorId'
+      fullPath: '/distributors/$distributorId'
+      preLoaderRoute: typeof DistributorsDistributorIdRouteImport
+      parentRoute: typeof DistributorsRoute
     }
     '/clients/$clientId': {
       id: '/clients/$clientId'
@@ -224,9 +281,24 @@ const ClientsRouteChildren: ClientsRouteChildren = {
 const ClientsRouteWithChildren =
   ClientsRoute._addFileChildren(ClientsRouteChildren)
 
+interface DistributorsRouteChildren {
+  DistributorsDistributorIdRoute: typeof DistributorsDistributorIdRoute
+  DistributorsIndexRoute: typeof DistributorsIndexRoute
+}
+
+const DistributorsRouteChildren: DistributorsRouteChildren = {
+  DistributorsDistributorIdRoute: DistributorsDistributorIdRoute,
+  DistributorsIndexRoute: DistributorsIndexRoute,
+}
+
+const DistributorsRouteWithChildren = DistributorsRoute._addFileChildren(
+  DistributorsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientsRoute: ClientsRouteWithChildren,
+  DistributorsRoute: DistributorsRouteWithChildren,
   ExpensesRoute: ExpensesRoute,
   InventoryRoute: InventoryRoute,
   LoginRoute: LoginRoute,

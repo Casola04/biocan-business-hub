@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   Receipt,
   BarChart3,
+  Truck,
 } from "lucide-react";
 import logo from "@/assets/true-north-labs-logo.png";
 import {
@@ -19,19 +20,34 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/lib/auth";
 
-const items = [
+type NavItem = { title: string; url: string; icon: typeof LayoutDashboard };
+
+const adminItems: NavItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Clients", url: "/clients", icon: Users },
   { title: "Inventory", url: "/inventory", icon: Package },
   { title: "Orders", url: "/orders", icon: ShoppingCart },
   { title: "Expenses", url: "/expenses", icon: Receipt },
   { title: "Reports", url: "/reports", icon: BarChart3 },
-] as const;
+  { title: "Distributors", url: "/distributors", icon: Truck },
+];
+
+// Distributors get a stripped-down menu — no inventory, no reports,
+// no distributors-management page.
+const distributorItems: NavItem[] = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "My Clients", url: "/clients", icon: Users },
+  { title: "My Orders", url: "/orders", icon: ShoppingCart },
+  { title: "My Expenses", url: "/expenses", icon: Receipt },
+];
 
 export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { isDistributor } = useAuth();
+  const items = isDistributor ? distributorItems : adminItems;
 
   return (
     <Sidebar collapsible="icon">

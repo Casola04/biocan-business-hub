@@ -26,7 +26,17 @@ export type Client = {
   phone: string | null;
   pricing_type: PricingType | null;
   notes: string | null;
+  distributor_id: string | null;
   created_at: string;
+};
+
+export type Profile = {
+  id: string;
+  username: string | null;
+  full_name: string | null;
+  email: string | null;
+  role: "admin" | "employee" | "distributor";
+  split_pct: number;
 };
 
 export type Product = {
@@ -57,6 +67,7 @@ export type Order = {
   status: string;
   notes: string | null;
   month_key: string;
+  distributor_id: string | null;
   created_at: string;
 };
 
@@ -69,5 +80,6 @@ export type Expense = {
   amount: number;
   notes: string | null;
   month_key: string;
+  distributor_id: string | null;
   created_at: string;
 };

@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { fmtMoney, formatMonthKey } from "@/lib/format";
 import { Download } from "lucide-react";
+import { applyDistributorScope, useDataScope } from "@/lib/scope";
 
 export const Route = createFileRoute("/reports")({ component: ReportsPage });
 
@@ -33,23 +34,27 @@ function downloadCSV(filename: string, headers: string[], rows: (string | number
 }
 
 function ReportsPage() {
+  const scope = useDataScope();
+
   const ordersQ = useQuery({
-    queryKey: ["reports", "orders"],
+    queryKey: ["reports", "orders", scope],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("orders")
         .select("id, product_id, product_name, quantity, unit_price, total, month_key, date");
+      q = applyDistributorScope(q, scope);
+      const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
     },
   });
 
   const expensesQ = useQuery({
-    queryKey: ["reports", "expenses"],
+    queryKey: ["reports", "expenses", scope],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("expenses")
-        .select("month_key, amount");
+      let q = supabase.from("expenses").select("month_key, amount");
+      q = applyDistributorScope(q, scope);
+      const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
     },

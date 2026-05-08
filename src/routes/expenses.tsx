@@ -26,6 +26,7 @@ import { fmtMoney, formatMonthKey, monthKey, nextId, todayISO } from "@/lib/form
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { applyDistributorScope, distributorIdForInsert, useDataScope } from "@/lib/scope";
 
 export const Route = createFileRoute("/expenses")({ component: ExpensesPage });
 
@@ -50,7 +51,8 @@ const emptyForm = (suggestedId: string): FormState => ({
 });
 
 function ExpensesPage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isDistributor } = useAuth();
+  const scope = useDataScope();
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
@@ -59,12 +61,14 @@ function ExpensesPage() {
   const [confirmDelete, setConfirmDelete] = useState<Expense | null>(null);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["expenses"],
+    queryKey: ["expenses", scope],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("expenses")
         .select("*")
         .order("date", { ascending: false });
+      q = applyDistributorScope(q, scope);
+      const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as Expense[];
     },
@@ -115,7 +119,9 @@ function ExpensesPage() {
       if (error) return toast.error(error.message);
       toast.success(`Expense ${expense_id} updated`);
     } else {
-      const { error } = await supabase.from("expenses").insert(payload);
+      const { error } = await supabase
+        .from("expenses")
+        .insert({ ...payload, distributor_id: distributorIdForInsert(scope) });
       if (error) return toast.error(error.message);
       toast.success(`Expense ${expense_id} added`);
     }
@@ -216,7 +222,7 @@ function ExpensesPage() {
                       <Button variant="ghost" size="icon" onClick={() => openEdit(e)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      {isAdmin && (
+                      {(isAdmin || isDistributor) && (
                         <Button
                           variant="ghost"
                           size="icon"
