@@ -99,7 +99,7 @@ function DistributorDetail() {
       (productsQ.data ?? []).map((p: any) => [p.id, Number(p.unit_cost ?? 0)]),
     );
     const revenue = orders.reduce((s, o) => s + Number(o.total || 0), 0);
-    const profit = orders.reduce((s, o) => {
+    const grossProfit = orders.reduce((s, o) => {
       const cost = costMap.get(o.product_id ?? "") ?? 0;
       return s + (Number(o.unit_price) - cost) * Number(o.quantity);
     }, 0);
@@ -107,15 +107,17 @@ function DistributorDetail() {
       (s: number, e: any) => s + Number(e.amount || 0),
       0,
     );
+    // The 70/30 split is calculated against NET profit (gross - distributor's expenses)
+    const netProfit = grossProfit - expenseTotal;
     const splitPct = Number(profileQ.data?.split_pct ?? 70);
     return {
       revenue,
-      profit,
+      profit: netProfit,
       net: revenue - expenseTotal,
       expenses: expenseTotal,
       splitPct,
-      theirCut: profit * (splitPct / 100),
-      houseCut: profit * (1 - splitPct / 100),
+      theirCut: netProfit * (splitPct / 100),
+      houseCut: netProfit * (1 - splitPct / 100),
       orderCount: orders.length,
       clientCount: (clientsQ.data ?? []).length,
     };
@@ -170,7 +172,7 @@ function DistributorDetail() {
             <Kpi label="Clients" value={String(totals.clientCount)} icon={Users} />
             <Kpi label="Orders" value={String(totals.orderCount)} icon={ShoppingCart} />
             <Kpi label="Revenue" value={fmtMoney(totals.revenue)} icon={DollarSign} valueClass="text-success" />
-            <Kpi label="Gross Profit" value={fmtMoney(totals.profit)} icon={TrendingUp} />
+            <Kpi label="Net Profit" value={fmtMoney(totals.profit)} icon={TrendingUp} />
             <Kpi
               label={`Their Cut (${totals.splitPct}%)`}
               value={fmtMoney(totals.theirCut)}

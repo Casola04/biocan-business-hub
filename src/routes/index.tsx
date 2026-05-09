@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -12,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/lib/supabase";
 import { fmtMoney } from "@/lib/format";
 import {
-  DollarSign, TrendingDown, TrendingUp, ShoppingCart, AlertTriangle, Wallet,
+  DollarSign, TrendingDown, TrendingUp, ShoppingCart, AlertTriangle, Wallet, Truck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { applyDistributorScope, useDataScope } from "@/lib/scope";
@@ -77,6 +78,45 @@ function Dashboard() {
     },
   });
 
+  // Admin-only: pull every distributor order + expense + their split_pct so we
+  // can compute the "House Cut from Distributors" tile.
+  const distOrdersQ = useQuery({
+    queryKey: ["dashboard", "distOrders"],
+    enabled: scope.kind === "admin",
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("distributor_id, product_id, quantity, unit_price")
+        .not("distributor_id", "is", null);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const distExpensesQ = useQuery({
+    queryKey: ["dashboard", "distExpenses"],
+    enabled: scope.kind === "admin",
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("expenses")
+        .select("distributor_id, amount")
+        .not("distributor_id", "is", null);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const distProfilesQ = useQuery({
+    queryKey: ["dashboard", "distProfiles"],
+    enabled: scope.kind === "admin",
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, split_pct")
+        .eq("role", "distributor");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const loading = ordersQ.isLoading || expensesQ.isLoading || productsQ.isLoading;
   const error = ordersQ.error || expensesQ.error || productsQ.error;
 
@@ -95,8 +135,36 @@ function Dashboard() {
     const cost = productById.get(o.product_id ?? "")?.unit_cost ?? 0;
     return s + (Number(o.unit_price) - Number(cost)) * Number(o.quantity);
   }, 0);
-  const distributorTake = grossProfit * (splitPct / 100);
-  const houseTake = grossProfit - distributorTake;
+  // Net profit = gross profit MINUS distributor's own expenses.
+  // The 70/30 split is calculated against this net number.
+  const netProfitForSplit = grossProfit - totalExpenses;
+  const distributorTake = netProfitForSplit * (splitPct / 100);
+  const houseTake = netProfitForSplit - distributorTake;
+
+  // Admin-only: total 30% (or whatever each distributor's split is) we earn
+  // off ALL distributor activity. Calculated per-distributor because each
+  // person can have a different split %.
+  const houseCutFromDistributors = useMemo(() => {
+    if (scope.kind !== "admin") return 0;
+    const distOrders = distOrdersQ.data ?? [];
+    const distExpenses = distExpensesQ.data ?? [];
+    const distProfiles = distProfilesQ.data ?? [];
+
+    let total = 0;
+    for (const p of distProfiles as Array<{ id: string; split_pct: number }>) {
+      const myOrders = distOrders.filter((o: any) => o.distributor_id === p.id);
+      const myExpenses = distExpenses.filter((e: any) => e.distributor_id === p.id);
+      const grossP = myOrders.reduce((s: number, o: any) => {
+        const cost = productById.get(o.product_id ?? "")?.unit_cost ?? 0;
+        return s + (Number(o.unit_price) - Number(cost)) * Number(o.quantity);
+      }, 0);
+      const expSum = myExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+      const netP = grossP - expSum;
+      const houseShare = 1 - Number(p.split_pct ?? 70) / 100;
+      total += netP * houseShare;
+    }
+    return total;
+  }, [scope.kind, distOrdersQ.data, distExpensesQ.data, distProfilesQ.data, productById]);
 
   const lowStockItems = products.filter((p) => Number(p.stock_qty) <= Number(p.reorder_level));
 
@@ -153,7 +221,7 @@ function Dashboard() {
       ) : null}
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KpiCard
           label="Total Revenue"
           value={fmtMoney(totalRevenue)}
@@ -169,11 +237,11 @@ function Dashboard() {
           valueClass="text-destructive"
         />
         <KpiCard
-          label={showSplit ? "Gross Profit" : "Net Profit"}
-          value={fmtMoney(showSplit ? grossProfit : netProfit)}
+          label={showSplit ? "Net Profit (after exp.)" : "Net Profit"}
+          value={fmtMoney(showSplit ? netProfitForSplit : netProfit)}
           icon={TrendingUp}
           loading={loading}
-          valueClass={(showSplit ? grossProfit : netProfit) >= 0 ? "text-success" : "text-destructive"}
+          valueClass={(showSplit ? netProfitForSplit : netProfit) >= 0 ? "text-success" : "text-destructive"}
         />
         <KpiCard
           label="Total Orders"
@@ -190,14 +258,23 @@ function Dashboard() {
             valueClass="text-success"
           />
         ) : (
-          <KpiCard
-            label="Low Stock Items"
-            value={lowStockItems.length.toString()}
-            icon={AlertTriangle}
-            loading={loading}
-            valueClass={lowStockItems.length > 0 ? "text-destructive" : "text-foreground"}
-            iconClass={lowStockItems.length > 0 ? "text-destructive" : undefined}
-          />
+          <>
+            <KpiCard
+              label="House Cut (Distributors)"
+              value={fmtMoney(houseCutFromDistributors)}
+              icon={Truck}
+              loading={loading || distOrdersQ.isLoading}
+              valueClass="text-success"
+            />
+            <KpiCard
+              label="Low Stock Items"
+              value={lowStockItems.length.toString()}
+              icon={AlertTriangle}
+              loading={loading}
+              valueClass={lowStockItems.length > 0 ? "text-destructive" : "text-foreground"}
+              iconClass={lowStockItems.length > 0 ? "text-destructive" : undefined}
+            />
+          </>
         )}
       </div>
 
@@ -205,10 +282,16 @@ function Dashboard() {
       {showSplit && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-base">Profit Split ({splitPct}% / {100 - splitPct}%)</CardTitle>
+            <CardTitle className="text-base">
+              Profit Split ({splitPct}% / {100 - splitPct}%)
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Calculated on net profit (revenue − cost of goods − your expenses).
+            </p>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <CardContent className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <SplitTile label="Gross Profit" value={fmtMoney(grossProfit)} className="text-foreground" />
+            <SplitTile label="Net Profit" value={fmtMoney(netProfitForSplit)} className="text-foreground" />
             <SplitTile label={`Your Cut (${splitPct}%)`} value={fmtMoney(distributorTake)} className="text-success" />
             <SplitTile label={`House Cut (${100 - splitPct}%)`} value={fmtMoney(houseTake)} className="text-muted-foreground" />
           </CardContent>

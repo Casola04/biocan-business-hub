@@ -61,6 +61,20 @@ function DistributorsList() {
     enabled: isAdmin,
   });
 
+  // 2b. all distributor expenses (so we can compute NET profit)
+  const expensesQ = useQuery({
+    queryKey: ["distributors", "expenses"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("expenses")
+        .select("distributor_id, amount")
+        .not("distributor_id", "is", null);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: isAdmin,
+  });
+
   // 3. products for unit_cost lookup
   const productsQ = useQuery({
     queryKey: ["distributors", "products"],
@@ -77,26 +91,30 @@ function DistributorsList() {
   const rows: DistributorRow[] = useMemo(() => {
     const dists = distQ.data ?? [];
     const orders = ordersQ.data ?? [];
+    const expenses = expensesQ.data ?? [];
     const costMap = new Map<string, number>(
       (productsQ.data ?? []).map((p: any) => [p.id, Number(p.unit_cost ?? 0)]),
     );
 
     return dists.map((d) => {
       const myOrders = orders.filter((o: any) => o.distributor_id === d.id);
+      const myExpenses = expenses.filter((e: any) => e.distributor_id === d.id);
       const revenue = myOrders.reduce((s, o: any) => s + Number(o.total || 0), 0);
-      const profit = myOrders.reduce((s, o: any) => {
+      const grossProfit = myOrders.reduce((s, o: any) => {
         const cost = costMap.get(o.product_id ?? "") ?? 0;
         return s + (Number(o.unit_price) - cost) * Number(o.quantity);
       }, 0);
+      const expSum = myExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+      const netProfit = grossProfit - expSum;
       return {
         ...d,
         revenue,
-        profit,
-        their_cut: profit * (Number(d.split_pct ?? 70) / 100),
+        profit: netProfit, // displayed as "Profit" in the table = net of expenses
+        their_cut: netProfit * (Number(d.split_pct ?? 70) / 100),
         order_count: myOrders.length,
       };
     });
-  }, [distQ.data, ordersQ.data, productsQ.data]);
+  }, [distQ.data, ordersQ.data, expensesQ.data, productsQ.data]);
 
   // Edit-split sheet
   const [editing, setEditing] = useState<Profile | null>(null);
