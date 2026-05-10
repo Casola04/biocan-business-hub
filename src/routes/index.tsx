@@ -224,7 +224,7 @@ function Dashboard() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KpiCard
           label="Total Revenue"
-          value={fmtMoney(totalRevenue)}
+          value={fmtMoney(scope.kind === "admin" ? totalRevenue + houseCutFromDistributors : totalRevenue)}
           icon={DollarSign}
           loading={loading}
           valueClass="text-success"
@@ -238,7 +238,7 @@ function Dashboard() {
         />
         <KpiCard
           label={showSplit ? "Net Profit (after exp.)" : "Net Profit"}
-          value={fmtMoney(showSplit ? netProfitForSplit : netProfit)}
+          value={fmtMoney(showSplit ? netProfitForSplit : (totalRevenue + houseCutFromDistributors) - totalExpenses)}
           icon={TrendingUp}
           loading={loading}
           valueClass={(showSplit ? netProfitForSplit : netProfit) >= 0 ? "text-success" : "text-destructive"}
