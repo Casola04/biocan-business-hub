@@ -331,7 +331,7 @@ function Dashboard() {
                     <Bar dataKey="Revenue" fill="var(--success)" radius={[4, 4, 0, 0]} />
                     <Bar
                       dataKey={showSplit ? "Profit" : "Expenses"}
-                      fill={showSplit ? "hsl(220 90% 56%)" : "var(--destructive)"}
+                      fill={showSplit ? "#b0894f" : "var(--destructive)"}
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>

@@ -8,7 +8,8 @@ import {
   BarChart3,
   Truck,
 } from "lucide-react";
-import logo from "@/assets/true-north-labs-logo.png";
+import logo from "@/assets/elora-logo-light.png";
+import mark from "@/assets/elora-mark-light.png";
 import {
   Sidebar,
   SidebarContent,
@@ -51,27 +52,26 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border p-2">
-        <Link
-          to="/"
-          className="flex items-center justify-center rounded-md bg-white px-3 py-2 shadow-sm ring-1 ring-black/5 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:py-1"
-        >
+      <SidebarHeader className="border-b border-sidebar-border px-3 pt-6 pb-5 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:py-3">
+        <Link to="/" className="flex flex-col items-center justify-center gap-2">
           <img
             src={logo}
-            alt="True North Labs"
-            className="h-8 w-auto object-contain group-data-[collapsible=icon]:hidden"
+            alt="Elora Labs"
+            className="h-[74px] w-auto object-contain group-data-[collapsible=icon]:hidden"
           />
+          <span className="text-[10px] tracking-[0.34em] text-sidebar-primary/80 group-data-[collapsible=icon]:hidden">
+            OPERATING SYSTEM
+          </span>
           <img
-            src={logo}
-            alt="True North Labs"
-            className="hidden h-6 w-6 object-contain group-data-[collapsible=icon]:block"
-            style={{ objectPosition: "0 50%" }}
+            src={mark}
+            alt="Elora Labs"
+            className="hidden h-7 w-7 object-contain group-data-[collapsible=icon]:block"
           />
         </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] tracking-[0.28em] uppercase text-sidebar-foreground/50">Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
@@ -82,6 +82,7 @@ export function AppSidebar() {
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
+                      className="h-10 rounded-xl text-[13.5px] tracking-wide text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-gradient-to-r data-[active=true]:from-[#2f2820] data-[active=true]:to-[#241f19] data-[active=true]:text-[#f4ede2] data-[active=true]:shadow-[inset_2px_0_0_#c9a96e] [&>svg]:size-[18px] data-[active=true]:[&>svg]:text-[#c9a96e]"
                     >
                       <Link to={item.url}>
                         <item.icon />

@@ -161,29 +161,29 @@ function ReportsPage() {
                     layout="vertical"
                     margin={{ top: 10, right: 24, left: 16, bottom: 10 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                     <XAxis
                       type="number"
                       tickFormatter={(v) => fmtMoney(Number(v))}
-                      stroke="hsl(var(--muted-foreground))"
+                      stroke="var(--muted-foreground)"
                       fontSize={12}
                     />
                     <YAxis
                       type="category"
                       dataKey="name"
                       width={140}
-                      stroke="hsl(var(--muted-foreground))"
+                      stroke="var(--muted-foreground)"
                       fontSize={12}
                     />
                     <Tooltip
                       formatter={(v) => fmtMoney(Number(v))}
                       contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "var(--card)",
+                        border: "1px solid var(--border)",
                         borderRadius: 8,
                       }}
                     />
-                    <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="revenue" fill="var(--primary)" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -244,18 +244,18 @@ function ReportsPage() {
                     data={monthlyRows}
                     margin={{ top: 10, right: 24, left: 8, bottom: 10 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={12} />
                     <YAxis
                       tickFormatter={(v) => fmtMoney(Number(v))}
-                      stroke="hsl(var(--muted-foreground))"
+                      stroke="var(--muted-foreground)"
                       fontSize={12}
                     />
                     <Tooltip
                       formatter={(v) => fmtMoney(Number(v))}
                       contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "var(--card)",
+                        border: "1px solid var(--border)",
                         borderRadius: 8,
                       }}
                     />
@@ -264,7 +264,7 @@ function ReportsPage() {
                       type="monotone"
                       dataKey="revenue"
                       name="Revenue"
-                      stroke="hsl(142 70% 45%)"
+                      stroke="#5f8a68"
                       strokeWidth={2}
                       dot={{ r: 3 }}
                     />
@@ -272,7 +272,7 @@ function ReportsPage() {
                       type="monotone"
                       dataKey="expenses"
                       name="Expenses"
-                      stroke="hsl(0 75% 55%)"
+                      stroke="#b4533e"
                       strokeWidth={2}
                       dot={{ r: 3 }}
                     />
