@@ -175,7 +175,7 @@ function PricingBadge({ value }: { value: PricingType }) {
     );
   }
   return (
-    <Badge className="bg-blue-500/15 text-blue-600 hover:bg-blue-500/20 border-blue-500/30">
+    <Badge className="bg-[#c9a96e]/15 text-[#8a6a30] hover:bg-[#c9a96e]/25 border-[#c9a96e]/40">
       Standard
     </Badge>
   );
