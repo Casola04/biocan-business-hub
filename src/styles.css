@@ -41,36 +41,38 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.99 0.002 250);
-  --foreground: oklch(0.18 0.03 250);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.03 250);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.03 250);
-  --primary: oklch(0.22 0.05 255);
-  --primary-foreground: oklch(0.98 0.003 250);
-  --secondary: oklch(0.96 0.01 250);
-  --secondary-foreground: oklch(0.22 0.05 255);
-  --muted: oklch(0.96 0.008 250);
-  --muted-foreground: oklch(0.5 0.02 255);
-  --accent: oklch(0.95 0.015 160);
-  --accent-foreground: oklch(0.22 0.05 255);
-  --destructive: oklch(0.6 0.22 27);
-  --destructive-foreground: oklch(0.98 0.003 250);
-  --success: oklch(0.62 0.16 152);
-  --success-foreground: oklch(0.98 0.003 250);
-  --border: oklch(0.92 0.01 250);
-  --input: oklch(0.92 0.01 250);
-  --ring: oklch(0.62 0.16 152);
-  --sidebar: oklch(0.18 0.04 255);
-  --sidebar-foreground: oklch(0.85 0.02 250);
-  --sidebar-primary: oklch(0.62 0.16 152);
-  --sidebar-primary-foreground: oklch(0.98 0.003 250);
-  --sidebar-accent: oklch(0.25 0.04 255);
-  --sidebar-accent-foreground: oklch(0.98 0.003 250);
-  --sidebar-border: oklch(0.28 0.04 255);
-  --sidebar-ring: oklch(0.62 0.16 152);
+  --radius: 0.875rem;
+  --background: #f7f3ec;
+  --foreground: #2c2823;
+  --card: #ffffff;
+  --card-foreground: #2c2823;
+  --popover: #ffffff;
+  --popover-foreground: #2c2823;
+  --primary: #2c2823;
+  --primary-foreground: #fbf8f3;
+  --secondary: #f1ebe1;
+  --secondary-foreground: #2c2823;
+  --muted: #f3eee6;
+  --muted-foreground: #857c6f;
+  --accent: #f4ead8;
+  --accent-foreground: #2c2823;
+  --destructive: #b4533e;
+  --destructive-foreground: #fffaf5;
+  --success: #5f8a68;
+  --success-foreground: #fbf8f3;
+  --border: #e7ded1;
+  --input: #e2d8c9;
+  --ring: #b0894f;
+  --gold: #b0894f;
+  --gold-soft: #e8d3ad;
+  --sidebar: #1b1814;
+  --sidebar-foreground: #cfc4b3;
+  --sidebar-primary: #c9a96e;
+  --sidebar-primary-foreground: #1b1814;
+  --sidebar-accent: #2a251f;
+  --sidebar-accent-foreground: #f4ede2;
+  --sidebar-border: #2f2a23;
+  --sidebar-ring: #c9a96e;
 }
 
 .dark {
@@ -112,5 +114,54 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+  }
+  h1, h2, h3, [data-slot="card-title"], .font-display {
+    font-family: "Cinzel", Georgia, serif;
+    letter-spacing: 0.04em;
+    font-weight: 500;
   }
 }
+
+@theme inline {
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --font-display: "Cinzel", Georgia, serif;
+}
+
+/* ---- Elora polish: smooth, soft, modern ---- */
+body {
+  background-image: radial-gradient(1200px 600px at 100% -10%, rgba(201, 169, 110, 0.10), transparent 60%);
+  background-attachment: fixed;
+}
+button, a, input, select, textarea, [role="tab"], [role="menuitem"] {
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.rounded-lg.border.bg-card, .rounded-xl.border.bg-card, [data-slot="card"] {
+  box-shadow: 0 1px 2px rgba(44, 40, 35, 0.04), 0 12px 32px -18px rgba(44, 40, 35, 0.18);
+  border-color: var(--color-border);
+}
+.rounded-lg.border.bg-card:hover, [data-slot="card"]:hover {
+  box-shadow: 0 1px 2px rgba(44, 40, 35, 0.05), 0 18px 40px -20px rgba(44, 40, 35, 0.24);
+}
+input:focus-visible, textarea:focus-visible, button:focus-visible, [role="combobox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(176, 137, 79, 0.25);
+  border-color: var(--gold);
+}
+table thead th {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+table tbody tr { transition: background-color .15s ease; }
+table tbody tr:hover { background-color: rgba(201, 169, 110, 0.07); }
+::selection { background: rgba(201, 169, 110, 0.35); }
+* { scrollbar-width: thin; scrollbar-color: #d6c8b3 transparent; }
+@keyframes elora-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+main > * { animation: elora-rise .45s cubic-bezier(.2,.8,.2,1) both; }
+
