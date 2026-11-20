@@ -38,7 +38,7 @@ export function AppLayout({ title, children }: { title: string; children: ReactN
   if (loading || !session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <div className="flex flex-col items-center gap-3"><div className="h-8 w-8 rounded-full border-2 border-gold/30 border-t-gold animate-spin" /><p className="text-xs tracking-[0.3em] text-muted-foreground">ELORA LABS</p></div>
       </div>
     );
   }
@@ -48,12 +48,12 @@ export function AppLayout({ title, children }: { title: string; children: ReactN
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center gap-3 border-b bg-card px-4 sticky top-0 z-10">
+          <header className="h-16 flex items-center gap-3 border-b bg-card/80 backdrop-blur-md px-4 sm:px-6 sticky top-0 z-10">
             <SidebarTrigger />
-            <h1 className="text-base font-semibold text-foreground flex-1">{title}</h1>
+            <h1 className="text-lg text-foreground flex-1 truncate">{title}</h1>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button variant="ghost" size="sm" className="gap-2 rounded-full border border-border bg-background/60 px-3">
                   <UserIcon className="h-4 w-4" />
                   <span className="hidden sm:inline text-sm">{user?.email}</span>
                   {isAdmin && <ShieldCheck className="h-3.5 w-3.5 text-success" />}
@@ -78,7 +78,7 @@ export function AppLayout({ title, children }: { title: string; children: ReactN
               </DropdownMenuContent>
             </DropdownMenu>
           </header>
-          <main className="flex-1 p-6 overflow-x-auto">{children}</main>
+          <main className="flex-1 p-4 sm:p-8 overflow-x-auto">{children}</main>
         </div>
       </div>
     </SidebarProvider>
