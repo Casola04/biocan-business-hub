@@ -12,7 +12,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/lib/supabase";
-import { fmtMoney, formatMonthKey } from "@/lib/format";
+import { fmtMoney, formatMonthKey, productGroup } from "@/lib/format";
 import { Download } from "lucide-react";
 import { applyDistributorScope, useDataScope } from "@/lib/scope";
 
@@ -64,7 +64,7 @@ function ReportsPage() {
   const productRows = useMemo(() => {
     const map = new Map<string, { name: string; revenue: number; orders: number }>();
     for (const o of (ordersQ.data ?? []) as any[]) {
-      const key = o.product_name ?? "Unknown";
+      const key = productGroup(o.product_name);
       const cur = map.get(key) ?? { name: key, revenue: 0, orders: 0 };
       cur.revenue += Number(o.total || 0);
       cur.orders += 1;

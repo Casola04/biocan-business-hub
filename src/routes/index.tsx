@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/lib/supabase";
-import { fmtMoney } from "@/lib/format";
+import { fmtMoney, productGroup } from "@/lib/format";
 import {
   DollarSign, TrendingDown, TrendingUp, ShoppingCart, AlertTriangle, Wallet, Truck,
 } from "lucide-react";
@@ -198,7 +198,7 @@ function Dashboard() {
   // Revenue by product
   const productRevMap = new Map<string, number>();
   for (const o of orders) {
-    const k = o.product_name ?? "Unknown";
+    const k = productGroup(o.product_name);
     productRevMap.set(k, (productRevMap.get(k) ?? 0) + Number(o.total || 0));
   }
   const productRevData = [...productRevMap.entries()]
