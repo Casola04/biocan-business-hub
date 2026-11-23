@@ -23,3 +23,16 @@ export const nextId = (prefix: string, existing: string[]) => {
   const next = (nums.length ? Math.max(...nums) : 0) + 1;
   return `${prefix}-${String(next).padStart(4, "0")}`;
 };
+
+// Product families that should be reported as one line in "Revenue by Product"
+// (e.g. "Retatrutide", "Retatrutide 10mg", "Retatrutide 20mg" -> "Retatrutide").
+const PRODUCT_FAMILIES: { match: RegExp; name: string }[] = [
+  { match: /retatrutide/i, name: "Retatrutide" },
+];
+
+export const productGroup = (name: string | null | undefined) => {
+  const n = (name ?? "").trim();
+  if (!n) return "Unknown";
+  const fam = PRODUCT_FAMILIES.find((f) => f.match.test(n));
+  return fam ? fam.name : n;
+};
